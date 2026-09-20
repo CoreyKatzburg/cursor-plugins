@@ -1,0 +1,73 @@
+name: Sync upstream
+
+on:
+  schedule:
+    # Actions cron is UTC-only; 12:00 UTC is 08:00 ET while EDT is in effect.
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+# What the job's GITHUB_TOKEN may do: push the upstream merge to main, and
+# open/close the manifest PR.
+permissions:
+  contents: write
+  pull-requests: write
+
+# Never let two syncs run at once (a manual run during the scheduled one would
+# race on main and the PR branch); queue the second instead of cancelling it.
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Merge cursor/plugins into main
+        run: |
+          # The runner has no git identity; this is the standard bot author.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/cursor/plugins.git
+          git fetch upstream main
+          git merge --no-edit upstream/main
+          git push origin HEAD:main
+
+      - name: Sync Devin manifests
+        run: node scripts/sync-devin-manifests.mjs
+
+      - name: Open or update the manifest PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: chore/sync-devin-manifests
+        run: |
+          open_pr="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')"
+
+          # Manifests match upstream: nothing to review, so retire a PR from an
+          # earlier run if one is still open and never open a new one.
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Devin manifests already match upstream"
+            if [ -n "$open_pr" ]; then gh pr close "$open_pr" --delete-branch; fi
+            exit 0
+          fi
+
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "chore: sync Devin plugin manifests with upstream"
+          git push --force origin "$BRANCH"
+
+          # An already-open PR picks up the force-push on its own.
+          if [ -z "$open_pr" ]; then
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore: sync Devin plugin manifests with upstream" \
+              --body "Automated by \`.github/workflows/sync-upstream.yml\`: regenerates every \`.devin-plugin/plugin.json\` from its \`.cursor-plugin/plugin.json\`, refreshes the \`.mcp.json\` symlinks, and removes manifests for plugins upstream deleted or delisted."
+          fi
