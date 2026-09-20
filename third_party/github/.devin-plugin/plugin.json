@@ -1,0 +1,6 @@
+{
+  "name": "github",
+  "displayName": "GitHub",
+  "version": "1.0.0",
+  "description": "Manage repos, issues, pull requests, and Actions."
+}

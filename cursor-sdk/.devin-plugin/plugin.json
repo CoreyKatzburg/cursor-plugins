@@ -1,0 +1,6 @@
+{
+  "name": "cursor-sdk",
+  "displayName": "Cursor SDK",
+  "version": "1.0.0",
+  "description": "Build apps, scripts, and automations with the TypeScript SDK."
+}

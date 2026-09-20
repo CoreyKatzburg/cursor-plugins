@@ -1,0 +1,6 @@
+{
+  "name": "docs-canvas",
+  "displayName": "Docs Canvas",
+  "version": "0.1.0",
+  "description": "Render documentation as a navigable canvas."
+}

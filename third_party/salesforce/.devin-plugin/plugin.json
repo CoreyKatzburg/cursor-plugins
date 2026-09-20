@@ -1,0 +1,6 @@
+{
+  "name": "salesforce",
+  "displayName": "Salesforce",
+  "version": "1.0.0",
+  "description": "Query, create, and update records in your org."
+}
