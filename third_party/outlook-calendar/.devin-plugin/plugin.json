@@ -1,0 +1,6 @@
+{
+  "name": "outlook-calendar",
+  "displayName": "Outlook Calendar",
+  "version": "1.0.0",
+  "description": "List, create, update, and cancel Microsoft Outlook calendar events."
+}

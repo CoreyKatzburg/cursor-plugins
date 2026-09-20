@@ -1,0 +1,6 @@
+{
+  "name": "playwright",
+  "displayName": "Playwright",
+  "version": "1.0.0",
+  "description": "Navigate, click, screenshot, and test in a real browser."
+}

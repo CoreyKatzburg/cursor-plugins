@@ -1,0 +1,6 @@
+{
+  "name": "create-plugin",
+  "displayName": "Create Plugin",
+  "version": "1.0.0",
+  "description": "Scaffold and validate new agent plugins. Handles directory setup, manifest generation, and pre-submission quality checks for the marketplace."
+}

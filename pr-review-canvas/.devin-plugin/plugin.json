@@ -1,0 +1,6 @@
+{
+  "name": "pr-review-canvas",
+  "displayName": "PR Review Canvas",
+  "version": "0.1.0",
+  "description": "Render PR diffs as review canvases grouped by importance."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "statsig",
+  "displayName": "Statsig",
+  "version": "1.0.0",
+  "description": "Inspect and manage feature gates, experiments, dynamic configs, and metrics."
+}

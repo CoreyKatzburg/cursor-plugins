@@ -1,0 +1,6 @@
+{
+  "name": "docusign",
+  "displayName": "Docusign",
+  "version": "1.0.0",
+  "description": "Manage envelopes, templates, workflows, and agreements."
+}

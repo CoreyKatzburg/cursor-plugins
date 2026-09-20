@@ -1,0 +1,6 @@
+{
+  "name": "interactive-brokers",
+  "displayName": "Interactive Brokers",
+  "version": "1.0.0",
+  "description": "Review positions, balances, P&L, and draft trade instructions."
+}
