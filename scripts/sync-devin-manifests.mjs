@@ -1,115 +1,67 @@
 #!/usr/bin/env node
 
-// Keeps every plugin's `.devin-plugin/plugin.json` in sync with its
-// `.cursor-plugin/plugin.json`. Devin resolves manifests as
-// `.devin-plugin/plugin.json` > `.claude-plugin/plugin.json` > root
-// `plugin.json` and ignores the Cursor manifest, so each plugin needs its own
-// Devin manifest to be installable. MCP-only plugins additionally need
-// `.mcp.json` at the plugin root (Devin does not read the manifest's
-// `mcpServers` path), which is kept as a symlink to the Cursor `mcp.json`.
+// Regenerates the Devin manifests from the Cursor ones.
+//
+// Devin resolves plugin manifests as `.devin-plugin/plugin.json` >
+// `.claude-plugin/plugin.json` > root `plugin.json` and ignores
+// `.cursor-plugin/plugin.json`, so each plugin needs its own Devin manifest to
+// be installable. MCP plugins also need `.mcp.json` at the plugin root, since
+// Devin does not read the manifest's `mcpServers` path.
+//
+// Run it after merging upstream; it rewrites every manifest from scratch and
+// deletes the ones whose plugin is gone, so git shows exactly what drifted.
 
-import {
-  existsSync,
-  lstatSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  readlinkSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from "fs";
-import { dirname, join, relative, resolve } from "path";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "fs";
+import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const marketplace = JSON.parse(
-  readFileSync(join(root, ".cursor-plugin/marketplace.json"), "utf-8")
-);
+const readJSON = (path) => JSON.parse(readFileSync(join(root, path), "utf-8"));
 
-const changes = [];
-const record = (action, path) => changes.push(`${action} ${path}`);
+const marketplace = readJSON(".cursor-plugin/marketplace.json");
+const plugins = marketplace.plugins ?? [];
 
-function devinManifest(cursorManifest, entry) {
-  return {
-    name: cursorManifest.name ?? entry.name,
-    displayName: cursorManifest.displayName ?? cursorManifest.name ?? entry.name,
-    version: cursorManifest.version,
-    description: cursorManifest.description ?? entry.description,
-  };
-}
+for (const plugin of plugins) {
+  const cursor = readJSON(join(plugin.source, ".cursor-plugin/plugin.json"));
 
-function writeIfChanged(path, contents) {
-  if (existsSync(path) && readFileSync(path, "utf-8") === contents) return;
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, contents);
-  record("write", relative(root, path));
-}
-
-function syncMcpLink(pluginDir) {
-  const link = join(pluginDir, ".mcp.json");
-  const target = join(pluginDir, "mcp.json");
-  const linked = existsSync(link) || lstatSync(link, { throwIfNoEntry: false });
-
-  if (!existsSync(target)) {
-    if (linked) {
-      rmSync(link);
-      record("remove", relative(root, link));
-    }
-    return;
-  }
-  if (linked) {
-    const stat = lstatSync(link);
-    if (stat.isSymbolicLink() && readlinkSync(link) === "mcp.json") return;
-    rmSync(link);
-  }
-  symlinkSync("mcp.json", link);
-  record("link", relative(root, link));
-}
-
-const managed = new Set();
-
-for (const entry of marketplace.plugins ?? []) {
-  const pluginDir = join(root, entry.source);
-  const cursorManifestPath = join(pluginDir, ".cursor-plugin/plugin.json");
-  if (!existsSync(cursorManifestPath)) {
-    console.error(
-      `SKIP: ${entry.source} has no .cursor-plugin/plugin.json (listed as "${entry.name}")`
-    );
-    continue;
-  }
-  managed.add(resolve(pluginDir));
-  const cursorManifest = JSON.parse(readFileSync(cursorManifestPath, "utf-8"));
-  writeIfChanged(
-    join(pluginDir, ".devin-plugin/plugin.json"),
-    JSON.stringify(devinManifest(cursorManifest, entry), null, 2) + "\n"
+  mkdirSync(join(root, plugin.source, ".devin-plugin"), { recursive: true });
+  writeFileSync(
+    join(root, plugin.source, ".devin-plugin/plugin.json"),
+    JSON.stringify(
+      {
+        name: cursor.name,
+        displayName: cursor.displayName ?? cursor.name,
+        version: cursor.version,
+        description: cursor.description ?? plugin.description,
+      },
+      null,
+      2
+    ) + "\n"
   );
-  syncMcpLink(pluginDir);
+
+  // `.mcp.json` is a symlink so there is only ever one copy of the config.
+  const link = join(root, plugin.source, ".mcp.json");
+  rmSync(link, { force: true });
+  if (existsSync(join(root, plugin.source, "mcp.json"))) symlinkSync("mcp.json", link);
 }
 
-// Drop manifests for plugins that upstream removed or delisted.
-function prune(dir) {
-  for (const item of readdirSync(dir, { withFileTypes: true })) {
-    if (!item.isDirectory() || item.name === ".git" || item.name === "node_modules") continue;
-    const child = join(dir, item.name);
-    if (item.name === ".devin-plugin") {
-      if (managed.has(resolve(dir))) continue;
-      rmSync(child, { recursive: true });
-      record("remove", relative(root, child));
-      const link = join(dir, ".mcp.json");
-      if (lstatSync(link, { throwIfNoEntry: false })) {
-        rmSync(link);
-        record("remove", relative(root, link));
-      }
-      continue;
-    }
-    prune(child);
-  }
-}
-prune(root);
+// Plugins live at the repo root or under `third_party/`. Anything with a Devin
+// manifest that the marketplace no longer lists was deleted or delisted
+// upstream, so its manifest goes too.
+const listed = new Set(plugins.map((plugin) => plugin.source));
+const candidates = readdirSync(root, { withFileTypes: true })
+  .filter((item) => item.isDirectory() && !item.name.startsWith("."))
+  .flatMap((item) =>
+    item.name === "third_party"
+      ? readdirSync(join(root, "third_party")).map((name) => `third_party/${name}`)
+      : [item.name]
+  );
 
-if (changes.length === 0) {
-  console.log("Devin manifests already in sync");
-} else {
-  console.log(changes.join("\n"));
+for (const dir of candidates) {
+  if (listed.has(dir) || !existsSync(join(root, dir, ".devin-plugin"))) continue;
+  rmSync(join(root, dir, ".devin-plugin"), { recursive: true });
+  rmSync(join(root, dir, ".mcp.json"), { force: true });
+  console.log(`removed ${dir}/.devin-plugin`);
 }
+
+console.log(`synced ${plugins.length} Devin manifests`);
