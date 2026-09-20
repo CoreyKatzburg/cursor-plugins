@@ -1,0 +1,63 @@
+name: Sync upstream
+
+# 12:00 UTC = 08:00 America/New_York during EDT (09:00 EST in winter).
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Merge cursor/plugins into main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/cursor/plugins.git
+          git fetch upstream main
+          git merge --no-edit upstream/main
+          git push origin HEAD:main
+
+      - name: Sync Devin manifests
+        run: node scripts/sync-devin-manifests.mjs
+
+      - name: Open or update the manifest PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: chore/sync-devin-manifests
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Devin manifests already match upstream"
+            gh pr close "$BRANCH" --delete-branch 2>/dev/null || true
+            exit 0
+          fi
+
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "chore: sync Devin plugin manifests with upstream"
+          git push --force origin "$BRANCH"
+
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore: sync Devin plugin manifests with upstream" \
+              --body "Automated by \`.github/workflows/sync-upstream.yml\`: regenerates every \`.devin-plugin/plugin.json\` from its \`.cursor-plugin/plugin.json\`, refreshes the \`.mcp.json\` symlinks, and removes manifests for plugins upstream deleted or delisted."
+          fi
