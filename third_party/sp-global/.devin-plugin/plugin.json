@@ -1,0 +1,6 @@
+{
+  "name": "sp-global",
+  "displayName": "S&P Global",
+  "version": "1.0.0",
+  "description": "Query S&P Capital IQ financials, prices, and transcripts."
+}

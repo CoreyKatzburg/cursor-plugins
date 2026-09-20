@@ -1,0 +1,6 @@
+{
+  "name": "smartsheet",
+  "displayName": "Smartsheet",
+  "version": "1.0.0",
+  "description": "Query and update sheets, rows, and workspaces."
+}
