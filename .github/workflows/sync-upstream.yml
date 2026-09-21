@@ -2,9 +2,9 @@ name: Sync upstream
 
 on:
   schedule:
-    # Actions cron is UTC-only; 16:xx UTC is 12:xx ET while EDT is in effect.
+    # Actions cron is UTC-only; 18:xx UTC is 14:xx ET while EDT is in effect.
     # Off the top of the hour: GitHub drops :00 schedules when the queue is busy.
-    - cron: "17 16 * * *"
+    - cron: "17 18 * * *"
   workflow_dispatch:
 
 # What the job's GITHUB_TOKEN may do: push the upstream merge to main, and
