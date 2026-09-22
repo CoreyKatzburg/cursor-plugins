@@ -2,19 +2,19 @@ name: Sync upstream
 
 on:
   schedule:
-    # Actions cron is UTC-only; 18:xx UTC is 14:xx ET while EDT is in effect.
+    # Actions cron is UTC-only; 12:xx UTC is 08:xx ET while EDT is in effect.
     # Off the top of the hour: GitHub drops :00 schedules when the queue is busy.
-    - cron: "17 18 * * *"
+    - cron: "17 12 * * *"
   workflow_dispatch:
 
-# What the job's GITHUB_TOKEN may do: push the upstream merge to main, and
-# open/close the manifest PR.
+# What the job's GITHUB_TOKEN may do: push the sync branch, and open/close its PR.
+# main is protected by a ruleset requiring pull requests, so nothing is pushed there.
 permissions:
   contents: write
   pull-requests: write
 
 # Never let two syncs run at once (a manual run during the scheduled one would
-# race on main and the PR branch); queue the second instead of cancelling it.
+# race on the PR branch); queue the second instead of cancelling it.
 concurrency:
   group: sync-upstream
   cancel-in-progress: false
@@ -31,37 +31,39 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Merge cursor/plugins into main
+      - name: Merge cursor/plugins and regenerate manifests
+        env:
+          BRANCH: chore/sync-devin-manifests
         run: |
           # The runner has no git identity; this is the standard bot author.
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git remote add upstream https://github.com/cursor/plugins.git
           git fetch upstream main
+
+          # The merge lands on the sync branch, not main, so the PR carries both
+          # the upstream commits and the manifests they imply.
+          git checkout -B "$BRANCH"
           git merge --no-edit upstream/main
-          git push origin HEAD:main
+          node scripts/sync-devin-manifests.mjs
+          git add -A
+          git commit -m "chore: regenerate Devin plugin manifests" || true
 
-      - name: Sync Devin manifests
-        run: node scripts/sync-devin-manifests.mjs
-
-      - name: Open or update the manifest PR
+      - name: Open or update the sync PR
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: chore/sync-devin-manifests
         run: |
           open_pr="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')"
 
-          # Manifests match upstream: nothing to review, so retire a PR from an
-          # earlier run if one is still open and never open a new one.
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "Devin manifests already match upstream"
+          # Already in sync: nothing to review, so retire a PR from an earlier
+          # run if one is still open and never open a new one.
+          if git diff --quiet origin/main; then
+            echo "already in sync with upstream"
             if [ -n "$open_pr" ]; then gh pr close "$open_pr" --delete-branch; fi
             exit 0
           fi
 
-          git checkout -b "$BRANCH"
-          git add -A
-          git commit -m "chore: sync Devin plugin manifests with upstream"
           git push --force origin "$BRANCH"
 
           # An already-open PR picks up the force-push on its own.
@@ -69,6 +71,6 @@ jobs:
             gh pr create \
               --base main \
               --head "$BRANCH" \
-              --title "chore: sync Devin plugin manifests with upstream" \
-              --body "Automated by \`.github/workflows/sync-upstream.yml\`: regenerates every \`.devin-plugin/plugin.json\` from its \`.cursor-plugin/plugin.json\`, refreshes the \`.mcp.json\` symlinks, and removes manifests for plugins upstream deleted or delisted."
+              --title "chore: sync with upstream cursor/plugins" \
+              --body "Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates every \`.devin-plugin/plugin.json\` from its \`.cursor-plugin/plugin.json\`, refreshes the \`.mcp.json\` symlinks, and removes manifests for plugins upstream deleted or delisted."
           fi
