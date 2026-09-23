@@ -1,0 +1,6 @@
+{
+  "name": "coinbase",
+  "displayName": "Coinbase",
+  "version": "1.0.0",
+  "description": "Check balances, get quotes, and preview or place trades."
+}
