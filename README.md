@@ -86,6 +86,10 @@ Official Cursor plugins for popular developer tools, frameworks, and SaaS produc
 | `excalidraw` | [Excalidraw](third_party/excalidraw/) | Cursor | Integrations | Draw and export hand-drawn diagrams from chat. |
 | `google-cloud-bigquery` | [Google Cloud BigQuery](third_party/google-cloud-bigquery/) | Cursor | Integrations | Explore datasets and tables and run SQL queries. |
 | `statsig` | [Statsig](third_party/statsig/) | Cursor | Integrations | Inspect and manage feature gates, experiments, dynamic configs, and metrics. |
+| `robinhood` | [Robinhood](third_party/robinhood/) | Cursor | Integrations | View portfolios, positions, orders, watchlists, and market data, and trade in a Robinhood Agentic account. |
+| `coinbase` | [Coinbase](third_party/coinbase/) | Cursor | Integrations | Check balances, get quotes, and preview or place trades. |
+| `etoro-trading` | [eToro Trading](third_party/etoro-trading/) | Cursor | Integrations | View your eToro portfolio, balances, positions, and watchlists, research instruments and traders, and prepare and place trades. |
+| `x-money` | [X Money](third_party/x-money/) | Cursor | Integrations | Use your X Money Card, send money to users on X, manage your finances, view your balance and browse through your transaction history. |
 Author values match each plugin’s `plugin.json` `author.name` (Cursor lists `plugins@cursor.com` in the manifest).
 
 ## Repository structure

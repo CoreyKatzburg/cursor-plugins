@@ -1,0 +1,6 @@
+{
+  "name": "robinhood",
+  "displayName": "Robinhood",
+  "version": "1.0.0",
+  "description": "View portfolios, positions, orders, watchlists, and market data, and trade in a Robinhood Agentic account."
+}
