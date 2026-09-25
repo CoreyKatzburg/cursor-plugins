@@ -467,6 +467,11 @@
       "name": "tinyfish",
       "source": "third_party/tinyfish",
       "description": "Browse and automate the web with TinyFish: run multi-step web automations, search the web, extract clean page content, and drive remote stealth browser sessions."
+    },
+    {
+      "name": "trello",
+      "source": "third_party/trello",
+      "description": "Manage your Trello workspace from chat: browse and create boards, view and move lists, create, update, move, archive, and complete cards with labels and due dates, manage checklists, capture Inbox cards, schedule Planner focus time, and search across boards."
     }
   ]
 }
