@@ -467,6 +467,11 @@
       "name": "tinyfish",
       "source": "third_party/tinyfish",
       "description": "Browse and automate the web with TinyFish: run multi-step web automations, search the web, extract clean page content, and drive remote stealth browser sessions."
+    },
+    {
+      "name": "beehiiv",
+      "source": "third_party/beehiiv",
+      "description": "Run your beehiiv newsletter from chat: draft and edit posts, organize subscribers with tags, custom fields, and segments, build automations, and review publication, post, and website performance."
     }
   ]
 }
