@@ -479,6 +479,16 @@
       "description": "Manage your Trello workspace from chat: browse and create boards, view and move lists, create, update, move, archive, and complete cards with labels and due dates, manage checklists, capture Inbox cards, schedule Planner focus time, and search across boards."
     },
     {
+      "name": "buffer",
+      "source": "third_party/buffer",
+      "description": "Manage social media with Buffer: draft, schedule, and publish posts across connected channels, manage the queue and ideas, and review post performance."
+    },
+    {
+      "name": "posthog",
+      "source": "third_party/posthog",
+      "description": "Work with PostHog from chat: query product analytics and run SQL, manage feature flags and experiments, triage error tracking issues, and review session replays, surveys, and dashboards."
+    },
+    {
       "name": "plaud",
       "source": "third_party/plaud",
       "description": "Work with your Plaud recordings: list and search meetings and voice notes, read full transcripts with speaker labels, and pull AI summaries, action items, and key topics into your workflow."
