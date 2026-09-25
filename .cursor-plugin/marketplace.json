@@ -467,6 +467,11 @@
       "name": "tinyfish",
       "source": "third_party/tinyfish",
       "description": "Browse and automate the web with TinyFish: run multi-step web automations, search the web, extract clean page content, and drive remote stealth browser sessions."
+    },
+    {
+      "name": "buffer",
+      "source": "third_party/buffer",
+      "description": "Manage social media with Buffer: draft, schedule, and publish posts across connected channels, manage the queue and ideas, and review post performance."
     }
   ]
 }
