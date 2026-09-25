@@ -2,6 +2,10 @@
 
 All notable changes to this plugin will be documented here.
 
+## 1.0.1 — hosted placement
+
+- Declares `"placement": "server"` on the MCP server so Grok Bot (desktop and mobile) dials it through the hosted MCP path.
+
 ## 1.0.0 — initial release
 
 - Listed as `posthog-mcp` / "PostHog MCP": the `posthog` name belongs to PostHog's own marketplace plugin (id 730), and two APPROVED plugins with one name collide in the indexer.
