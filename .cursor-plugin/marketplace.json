@@ -467,6 +467,11 @@
       "name": "tinyfish",
       "source": "third_party/tinyfish",
       "description": "Browse and automate the web with TinyFish: run multi-step web automations, search the web, extract clean page content, and drive remote stealth browser sessions."
+    },
+    {
+      "name": "plaud",
+      "source": "third_party/plaud",
+      "description": "Work with your Plaud recordings: list and search meetings and voice notes, read full transcripts with speaker labels, and pull AI summaries, action items, and key topics into your workflow."
     }
   ]
 }
