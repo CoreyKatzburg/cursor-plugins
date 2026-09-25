@@ -477,6 +477,11 @@
       "name": "trello",
       "source": "third_party/trello",
       "description": "Manage your Trello workspace from chat: browse and create boards, view and move lists, create, update, move, archive, and complete cards with labels and due dates, manage checklists, capture Inbox cards, schedule Planner focus time, and search across boards."
+    },
+    {
+      "name": "buffer",
+      "source": "third_party/buffer",
+      "description": "Manage social media with Buffer: draft, schedule, and publish posts across connected channels, manage the queue and ideas, and review post performance."
     }
   ]
 }
