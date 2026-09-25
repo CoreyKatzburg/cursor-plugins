@@ -467,6 +467,11 @@
       "name": "tinyfish",
       "source": "third_party/tinyfish",
       "description": "Browse and automate the web with TinyFish: run multi-step web automations, search the web, extract clean page content, and drive remote stealth browser sessions."
+    },
+    {
+      "name": "posthog",
+      "source": "third_party/posthog",
+      "description": "Work with PostHog from chat: query product analytics and run SQL, manage feature flags and experiments, triage error tracking issues, and review session replays, surveys, and dashboards."
     }
   ]
 }
