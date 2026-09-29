@@ -66,11 +66,13 @@ jobs:
 
           git push --force origin "$BRANCH"
 
-          # An already-open PR picks up the force-push on its own.
+          # An already-open PR picks up the force-push on its own. REST, not
+          # gh: createPullRequest via GraphQL is refused for GITHUB_TOKEN here
+          # even with pull-requests: write and the repo setting enabled.
           if [ -z "$open_pr" ]; then
-            gh pr create \
-              --base main \
-              --head "$BRANCH" \
-              --title "chore: sync with upstream cursor/plugins" \
-              --body "Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates every \`.devin-plugin/plugin.json\` from its \`.cursor-plugin/plugin.json\`, refreshes the \`.mcp.json\` symlinks, and removes manifests for plugins upstream deleted or delisted."
+            gh api -X POST repos/{owner}/{repo}/pulls \
+              -f base=main \
+              -f head="$BRANCH" \
+              -f title="chore: sync with upstream cursor/plugins" \
+              -f body="Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates every \`.devin-plugin/plugin.json\` from its \`.cursor-plugin/plugin.json\`, refreshes the \`.mcp.json\` symlinks, and removes manifests for plugins upstream deleted or delisted."
           fi
