@@ -46,8 +46,10 @@ jobs:
           git checkout -B "$BRANCH"
           git merge --no-edit upstream/main
           node scripts/sync-devin-manifests.mjs
+          npm install --no-save --package-lock=false ajv ajv-formats
+          node scripts/validate-plugins.mjs
           git add -A
-          git commit -m "chore: regenerate Devin plugin manifests" || true
+          git commit -m "chore: regenerate Devin and Codex plugin manifests" || true
 
       - name: Open or update the sync PR
         env:
@@ -72,5 +74,5 @@ jobs:
               --base main \
               --head "$BRANCH" \
               --title "chore: sync with upstream cursor/plugins" \
-              --body "Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates every \`.devin-plugin/plugin.json\` from its \`.cursor-plugin/plugin.json\`, refreshes the \`.mcp.json\` symlinks, and removes manifests for plugins upstream deleted or delisted."
+              --body "Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates Devin manifests and pstack's Codex manifest from Cursor metadata, refreshes the \`.mcp.json\` symlinks, removes Devin manifests for plugins upstream deleted or delisted, and validates both marketplaces before pushing."
           fi

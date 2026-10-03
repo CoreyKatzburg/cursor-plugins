@@ -4,8 +4,13 @@ on:
   pull_request:
     paths:
       - ".cursor-plugin/marketplace.json"
+      - ".agents/plugins/marketplace.json"
       - "**/plugin.json"
       - "schemas/**"
+      - "scripts/**"
+      - "pstack/skills/**"
+      - ".github/workflows/validate-plugins.yml"
+      - ".github/workflows/sync-upstream.yml"
 
 jobs:
   validate:
@@ -18,7 +23,10 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install --no-save ajv ajv-formats
+        run: npm install --no-save --package-lock=false ajv ajv-formats
 
       - name: Validate plugin definitions
         run: node scripts/validate-plugins.mjs
+
+      - name: Test Codex packaging
+        run: node --test scripts/codex-packaging.test.mjs

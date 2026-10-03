@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Regenerates the Devin manifests from the Cursor ones.
+// Regenerates Devin manifests and pstack's Codex manifest from the Cursor ones.
 //
 // Devin resolves plugin manifests as `.devin-plugin/plugin.json` >
 // `.claude-plugin/plugin.json` > root `plugin.json` and ignores
@@ -11,7 +11,7 @@
 // Run it after merging upstream; it rewrites every manifest from scratch and
 // deletes the ones whose plugin is gone, so git shows exactly what drifted.
 
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, symlinkSync, writeFileSync } from "fs";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
@@ -20,6 +20,19 @@ const readJSON = (path) => JSON.parse(readFileSync(join(root, path), "utf-8"));
 
 const marketplace = readJSON(".cursor-plugin/marketplace.json");
 const plugins = marketplace.plugins ?? [];
+
+// Stop before rewriting files if upstream no longer supplies the selected plugin.
+const pstackEntry = plugins.find((plugin) => plugin.name === "pstack" && plugin.source === "pstack");
+const pstackManifestPath = join(root, "pstack/.cursor-plugin/plugin.json");
+const pstackSkillsPath = join(root, "pstack/skills");
+if (!pstackEntry || !existsSync(pstackManifestPath) ||
+    !existsSync(pstackSkillsPath) || !statSync(pstackSkillsPath).isDirectory()) {
+  throw new Error("Cannot package pstack for Codex: upstream removed or renamed pstack or its skills directory.");
+}
+const pstackManifest = readJSON("pstack/.cursor-plugin/plugin.json");
+if (pstackManifest.name !== "pstack") {
+  throw new Error("Cannot package pstack for Codex: upstream renamed the plugin.");
+}
 
 for (const plugin of plugins) {
   const cursor = readJSON(join(plugin.source, ".cursor-plugin/plugin.json"));
@@ -64,4 +77,17 @@ for (const dir of candidates) {
   console.log(`removed ${dir}/.devin-plugin`);
 }
 
-console.log(`synced ${plugins.length} Devin manifests`);
+// Only pstack is selected for Codex; new upstream plugins remain Devin-only.
+mkdirSync(join(root, "pstack/.codex-plugin"), { recursive: true });
+writeFileSync(
+  join(root, "pstack/.codex-plugin/plugin.json"),
+  JSON.stringify({
+    name: pstackManifest.name,
+    version: pstackManifest.version,
+    description: pstackManifest.description,
+    author: pstackManifest.author,
+    skills: "./skills/",
+  }, null, 2) + "\n"
+);
+
+console.log(`synced ${plugins.length} Devin manifests and pstack's Codex manifest`);
