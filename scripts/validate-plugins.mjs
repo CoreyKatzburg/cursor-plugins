@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, existsSync, statSync } from "fs";
+import { isDeepStrictEqual } from "util";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import Ajv from "ajv";
@@ -92,7 +93,48 @@ for (const entry of marketplace.plugins ?? []) {
   }
 }
 
-// 3. Report results
+// 3. Codex intentionally exposes only pstack from this marketplace.
+const codexMarketplace = loadJSON(resolve(root, ".agents/plugins/marketplace.json"));
+const expectedCodexEntry = {
+  name: "pstack",
+  source: { source: "local", path: "./pstack" },
+  policy: { installation: "AVAILABLE", authentication: "ON_INSTALL" },
+  category: "Developer Tools",
+};
+if (codexMarketplace.name !== "corey-cursor-plugins" ||
+    !isDeepStrictEqual(codexMarketplace.plugins, [expectedCodexEntry])) {
+  fail("Codex marketplace must list only pstack at ./pstack with the supported install policy.");
+}
+
+if (!marketplace.plugins?.some((entry) => entry.name === "pstack" && entry.source === "pstack")) {
+  fail("pstack must still be listed in the upstream Cursor marketplace.");
+}
+const cursorPstackManifest = loadJSON(resolve(root, "pstack/.cursor-plugin/plugin.json"));
+const codexPstackManifest = loadJSON(resolve(root, "pstack/.codex-plugin/plugin.json"));
+const expectedCodexManifest = {
+  name: "pstack",
+  version: cursorPstackManifest.version,
+  description: cursorPstackManifest.description,
+  author: cursorPstackManifest.author,
+  skills: "./skills/",
+};
+if (!isDeepStrictEqual(codexPstackManifest, expectedCodexManifest)) {
+  fail("pstack's Codex manifest is stale or invalid; run node scripts/sync-devin-manifests.mjs.");
+}
+for (const field of ["version", "description"]) {
+  if (typeof codexPstackManifest[field] !== "string" || !codexPstackManifest[field].trim()) {
+    fail(`pstack's Codex manifest requires a nonempty ${field}.`);
+  }
+}
+if (typeof codexPstackManifest.author?.name !== "string" || !codexPstackManifest.author.name.trim()) {
+  fail("pstack's Codex manifest requires an author name.");
+}
+const pstackSkillsPath = resolve(root, "pstack/skills");
+if (!existsSync(pstackSkillsPath) || !statSync(pstackSkillsPath).isDirectory()) {
+  fail("pstack's Codex skills path must point to the existing pstack/skills directory.");
+}
+
+// 4. Report results
 if (errors > 0) {
   console.error(`\nValidation failed with ${errors} error(s).`);
   process.exit(1);

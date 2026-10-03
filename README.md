@@ -2,6 +2,41 @@
 
 Official Cursor plugins for popular developer tools, frameworks, and SaaS products. Each plugin is a standalone directory at the repository root with its own `.cursor-plugin/plugin.json` manifest.
 
+## Install pstack in Codex
+
+The Codex marketplace exposes only `pstack`. It uses the same skills as the Cursor
+plugin, without installing the other plugins in this repository.
+
+```bash
+codex plugin marketplace add CoreyKatzburg/cursor-plugins --ref main
+codex plugin add pstack@corey-cursor-plugins
+```
+
+Restart Codex and open a new chat to find the plugin's skills. To update later:
+
+```bash
+codex plugin marketplace upgrade corey-cursor-plugins
+```
+
+This packages the existing skills and supporting files. Cursor-specific tools,
+model choices, slash commands, and agent definitions are not translated for Codex;
+workflows that depend on them may need adaptation. Context7, Ponytail, and personal
+`agent-skills` are separate installations.
+
+The upstream sync regenerates Devin manifests and pstack's Codex manifest from
+Cursor metadata, then validates them before pushing its PR branch. The Codex
+catalog stays limited to pstack when upstream adds plugins. To check a local change:
+
+```bash
+npm install --no-save --package-lock=false ajv ajv-formats
+node scripts/sync-devin-manifests.mjs
+node scripts/validate-plugins.mjs
+node --test scripts/codex-packaging.test.mjs
+```
+
+See [OpenAI's plugin packaging documentation](https://developers.openai.com/plugins/build/plugins)
+for the manifest and marketplace formats.
+
 ## Plugins
 
 | `name` | Plugin | Author | Category | `description` (from marketplace) |
