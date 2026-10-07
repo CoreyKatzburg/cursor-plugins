@@ -59,14 +59,16 @@ jobs:
           git config merge.ours.driver true
 
           # The merge lands on the sync branch, not main, so the PR carries both
-          # the upstream commits and the manifests they imply.
+          # the upstream commits and the manifests they imply. Merge without
+          # committing so the regenerated manifests go into the same merge
+          # commit instead of a second one.
           git checkout -B "$BRANCH"
-          git merge --no-edit upstream/main
+          git merge --no-commit --no-ff upstream/main
           node scripts/sync-devin-manifests.mjs
           npm install --no-save --package-lock=false ajv ajv-formats
           node scripts/validate-plugins.mjs
           git add -A
-          git commit -m "chore: regenerate Devin and Codex plugin manifests" || true
+          git commit -m "chore: sync with upstream cursor/plugins"
 
       - name: Open and merge the sync PR
         if: steps.upstream.outputs.has_changes == 'true'
