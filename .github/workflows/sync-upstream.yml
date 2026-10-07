@@ -38,6 +38,8 @@ jobs:
           # The runner has no git identity; this is the standard bot author.
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # .gitattributes marks files where our copy always wins the merge.
+          git config merge.ours.driver true
           git remote add upstream https://github.com/cursor/plugins.git
           git fetch upstream main
 
