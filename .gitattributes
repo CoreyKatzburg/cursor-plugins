@@ -1,0 +1,4 @@
+# This fork ships its own Claude Code marketplace (pstack only), so keep our
+# copy when the sync workflow merges cursor/plugins, which has its own.
+# The workflow registers the "ours" merge driver that this relies on.
+.claude-plugin/marketplace.json merge=ours
