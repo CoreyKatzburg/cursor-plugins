@@ -23,9 +23,11 @@ model choices, slash commands, and agent definitions are not translated for Code
 workflows that depend on them may need adaptation. Context7, Ponytail, and personal
 `agent-skills` are separate installations.
 
-The upstream sync regenerates Devin manifests and pstack's Codex manifest from
-Cursor metadata, then validates them before pushing its PR branch. The Codex
-catalog stays limited to pstack when upstream adds plugins. To check a local change:
+The upstream sync runs Mondays at 9:17 AM New York time and skips when there is
+nothing new. It merges `cursor/plugins`, regenerates Devin manifests and pstack's
+Codex manifest from Cursor metadata, validates them, and pushes the result to
+`main` as a single merge commit. The Codex catalog stays limited to pstack when
+upstream adds plugins. To check a local change:
 
 ```bash
 npm install --no-save --package-lock=false ajv ajv-formats
