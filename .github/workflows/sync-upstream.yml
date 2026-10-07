@@ -85,11 +85,7 @@ jobs:
 
           # Merge right away: the changes were validated above. Always a merge
           # commit, never squash, so main keeps upstream's history and the next
-          # sync only brings in new upstream commits. GitHub may still be
-          # computing mergeability for a brand-new PR, so retry briefly.
-          for attempt in 1 2 3 4 5; do
-            if gh pr merge "$open_pr" --merge; then exit 0; fi
-            sleep 10
-          done
-          echo "could not merge $open_pr" >&2
-          exit 1
+          # sync only brings in new upstream commits. The short wait gives
+          # GitHub time to finish checking that a brand-new PR can merge.
+          sleep 5
+          gh pr merge "$open_pr" --merge
