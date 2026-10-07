@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "corey-cursor-plugins",
+  "description": "Corey's Claude Code catalog for the pstack workflow skills and agents from this repository.",
+  "owner": {
+    "name": "Corey Katzburg"
+  },
+  "plugins": [
+    {
+      "name": "pstack",
+      "source": "./pstack",
+      "description": "if you want to go fast, go deep first. pstack helps you write less, but higher quality code. rigorous agent workflows you can parallelize with confidence.",
+      "author": {
+        "name": "Lauren Tan"
+      },
+      "category": "developer-tools"
+    }
+  ]
+}

@@ -37,6 +37,20 @@ node --test scripts/codex-packaging.test.mjs
 See [OpenAI's plugin packaging documentation](https://developers.openai.com/plugins/build/plugins)
 for the manifest and marketplace formats.
 
+## Install pstack in Claude Code
+
+The Claude Code marketplace exposes only `pstack`, matching the Codex catalog. It
+reuses the same `skills/` and `agents/` folders, so there is no separate Claude
+manifest to keep in sync. Version updates follow the repository's latest commit.
+
+```text
+/plugin marketplace add CoreyKatzburg/cursor-plugins
+/plugin install pstack@corey-cursor-plugins
+```
+
+To update later, run `/plugin marketplace update corey-cursor-plugins`. Cursor-specific
+tools, model choices, and slash commands are not translated for Claude Code.
+
 ## Plugins
 
 | `name` | Plugin | Author | Category | `description` (from marketplace) |
