@@ -1,0 +1,6 @@
+{
+  "name": "quickbooks-online",
+  "displayName": "QuickBooks Online",
+  "version": "1.0.0",
+  "description": "Read invoices, bills, expenses, customers, accounts, and financial reports."
+}
