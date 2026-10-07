@@ -2,9 +2,9 @@ name: Sync upstream
 
 on:
   schedule:
-    # Actions cron is UTC-only; 12:xx UTC is 08:xx ET while EDT is in effect.
-    # Off the top of the hour: GitHub drops :00 schedules when the queue is busy.
-    - cron: "17 12 * * *"
+    # Mondays at 9:00 AM New York time; GitHub adjusts for daylight saving.
+    - cron: "0 9 * * 1"
+      timezone: "America/New_York"
   workflow_dispatch:
 
 # What the job's GITHUB_TOKEN may do: push the sync branch, and open, merge, or
@@ -28,11 +28,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check for new upstream commits
+        id: upstream
+        run: |
+          git remote add upstream https://github.com/cursor/plugins.git
+          git fetch upstream main
+          # If main already contains upstream's latest commit, there is nothing
+          # to merge, so every later step is skipped.
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "main already has every upstream commit; nothing to sync"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-node@v7
+        if: steps.upstream.outputs.has_changes == 'true'
         with:
           node-version: lts/*
 
       - name: Merge cursor/plugins and regenerate manifests
+        if: steps.upstream.outputs.has_changes == 'true'
         env:
           BRANCH: chore/sync-devin-manifests
         run: |
@@ -41,8 +57,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # .gitattributes marks files where our copy always wins the merge.
           git config merge.ours.driver true
-          git remote add upstream https://github.com/cursor/plugins.git
-          git fetch upstream main
 
           # The merge lands on the sync branch, not main, so the PR carries both
           # the upstream commits and the manifests they imply.
@@ -55,9 +69,10 @@ jobs:
           git commit -m "chore: regenerate Devin and Codex plugin manifests" || true
 
       - name: Open and merge the sync PR
+        if: steps.upstream.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          # The previous step adds an "upstream" remote, and gh prefers that
+          # An earlier step adds an "upstream" remote, and gh prefers that
           # remote over origin, so without this it targets cursor/plugins.
           GH_REPO: ${{ github.repository }}
           BRANCH: chore/sync-devin-manifests
