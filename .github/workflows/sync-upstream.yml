@@ -7,8 +7,9 @@ on:
     - cron: "17 12 * * *"
   workflow_dispatch:
 
-# What the job's GITHUB_TOKEN may do: push the sync branch, and open/close its PR.
-# main is protected by a ruleset requiring pull requests, so nothing is pushed there.
+# What the job's GITHUB_TOKEN may do: push the sync branch, and open, merge, or
+# close its PR. main is protected by a ruleset requiring pull requests, so the
+# job never pushes there directly; it merges its own PR instead.
 permissions:
   contents: write
   pull-requests: write
@@ -53,7 +54,7 @@ jobs:
           git add -A
           git commit -m "chore: regenerate Devin and Codex plugin manifests" || true
 
-      - name: Open or update the sync PR
+      - name: Open and merge the sync PR
         env:
           GH_TOKEN: ${{ github.token }}
           # The previous step adds an "upstream" remote, and gh prefers that
@@ -75,9 +76,20 @@ jobs:
 
           # An already-open PR picks up the force-push on its own.
           if [ -z "$open_pr" ]; then
-            gh pr create \
+            open_pr="$(gh pr create \
               --base main \
               --head "$BRANCH" \
               --title "chore: sync with upstream cursor/plugins" \
-              --body "Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates Devin manifests and pstack's Codex manifest from Cursor metadata, refreshes the \`.mcp.json\` symlinks, removes Devin manifests for plugins upstream deleted or delisted, and validates both marketplaces before pushing."
+              --body "Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates Devin manifests and pstack's Codex manifest from Cursor metadata, refreshes the \`.mcp.json\` symlinks, removes Devin manifests for plugins upstream deleted or delisted, and validates both marketplaces before pushing.")"
           fi
+
+          # Merge right away: the changes were validated above. Always a merge
+          # commit, never squash, so main keeps upstream's history and the next
+          # sync only brings in new upstream commits. GitHub may still be
+          # computing mergeability for a brand-new PR, so retry briefly.
+          for attempt in 1 2 3 4 5; do
+            if gh pr merge "$open_pr" --merge; then exit 0; fi
+            sleep 10
+          done
+          echo "could not merge $open_pr" >&2
+          exit 1
