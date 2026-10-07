@@ -54,6 +54,9 @@ jobs:
       - name: Open or update the sync PR
         env:
           GH_TOKEN: ${{ github.token }}
+          # The previous step adds an "upstream" remote, and gh prefers that
+          # remote over origin, so without this it targets cursor/plugins.
+          GH_REPO: ${{ github.repository }}
           BRANCH: chore/sync-devin-manifests
         run: |
           open_pr="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')"
