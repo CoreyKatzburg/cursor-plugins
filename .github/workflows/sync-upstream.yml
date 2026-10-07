@@ -8,15 +8,12 @@ on:
       timezone: "America/New_York"
   workflow_dispatch:
 
-# What the job's GITHUB_TOKEN may do: push the sync branch, and open, merge, or
-# close its PR. main is protected by a ruleset requiring pull requests, so the
-# job never pushes there directly; it merges its own PR instead.
+# The job's GITHUB_TOKEN only needs to push the sync merge commit to main.
 permissions:
   contents: write
-  pull-requests: write
 
 # Never let two syncs run at once (a manual run during the scheduled one would
-# race on the PR branch); queue the second instead of cancelling it.
+# race to push to main); queue the second instead of cancelling it.
 concurrency:
   group: sync-upstream
   cancel-in-progress: false
@@ -48,10 +45,8 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Merge cursor/plugins and regenerate manifests
+      - name: Merge cursor/plugins, regenerate manifests, and push to main
         if: steps.upstream.outputs.has_changes == 'true'
-        env:
-          BRANCH: chore/sync-devin-manifests
         run: |
           # The runner has no git identity; this is the standard bot author.
           git config user.name "github-actions[bot]"
@@ -59,51 +54,14 @@ jobs:
           # .gitattributes marks files where our copy always wins the merge.
           git config merge.ours.driver true
 
-          # The merge lands on the sync branch, not main, so the PR carries both
-          # the upstream commits and the manifests they imply. Merge without
-          # committing so the regenerated manifests go into the same merge
-          # commit instead of a second one.
-          git checkout -B "$BRANCH"
+          # Merge without committing so the regenerated manifests go into the
+          # same merge commit: each sync adds exactly one commit to main. A
+          # merge commit (never a squash) keeps upstream's history on main, so
+          # the next sync only brings in new upstream commits.
           git merge --no-commit --no-ff upstream/main
           node scripts/sync-devin-manifests.mjs
           npm install --no-save --package-lock=false ajv ajv-formats
           node scripts/validate-plugins.mjs
           git add -A
           git commit -m "chore: sync with upstream cursor/plugins"
-
-      - name: Open and merge the sync PR
-        if: steps.upstream.outputs.has_changes == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          # An earlier step adds an "upstream" remote, and gh prefers that
-          # remote over origin, so without this it targets cursor/plugins.
-          GH_REPO: ${{ github.repository }}
-          BRANCH: chore/sync-devin-manifests
-        run: |
-          open_pr="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')"
-
-          # Already in sync: nothing to review, so retire a PR from an earlier
-          # run if one is still open and never open a new one.
-          if git diff --quiet origin/main; then
-            echo "already in sync with upstream"
-            if [ -n "$open_pr" ]; then gh pr close "$open_pr" --delete-branch; fi
-            exit 0
-          fi
-
-          git push --force origin "$BRANCH"
-
-          # An already-open PR picks up the force-push on its own.
-          if [ -z "$open_pr" ]; then
-            open_pr="$(gh pr create \
-              --base main \
-              --head "$BRANCH" \
-              --title "chore: sync with upstream cursor/plugins" \
-              --body "Automated by \`.github/workflows/sync-upstream.yml\`: merges \`cursor/plugins@main\`, regenerates Devin manifests and pstack's Codex manifest from Cursor metadata, refreshes the \`.mcp.json\` symlinks, removes Devin manifests for plugins upstream deleted or delisted, and validates both marketplaces before pushing.")"
-          fi
-
-          # Merge right away: the changes were validated above. Always a merge
-          # commit, never squash, so main keeps upstream's history and the next
-          # sync only brings in new upstream commits. The short wait gives
-          # GitHub time to finish checking that a brand-new PR can merge.
-          sleep 5
-          gh pr merge "$open_pr" --merge
+          git push origin HEAD:main
