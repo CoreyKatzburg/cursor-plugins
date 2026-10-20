@@ -58,7 +58,9 @@ jobs:
           # same merge commit: each sync adds exactly one commit to main. A
           # merge commit (never a squash) keeps upstream's history on main, so
           # the next sync only brings in new upstream commits.
-          git merge --no-commit --no-ff upstream/main
+          # Generated Devin files stay at their old paths until the generator
+          # removes them. Git must not guess which new plugin inherits them.
+          git -c merge.directoryRenames=false merge --no-commit --no-ff upstream/main
           node scripts/sync-devin-manifests.mjs
           npm install --no-save --package-lock=false ajv ajv-formats
           node scripts/validate-plugins.mjs

@@ -1,4 +1,10 @@
-# This fork ships its own Claude Code marketplace (pstack only), so keep our
-# copy when the sync workflow merges cursor/plugins, which has its own.
+# Keep this fork's catalog and validation rules when syncing cursor/plugins.
+# Upstream's Claude catalog uses generated harnesses; ours exposes pstack directly,
+# and our validator also checks the fork's generated Codex manifest.
 # The workflow registers the "ours" merge driver that this relies on.
+.gitattributes merge=ours
 .claude-plugin/marketplace.json merge=ours
+.github/workflows/validate-plugins.yml merge=ours
+scripts/validate-plugins.mjs merge=ours
+
+harness/pstack/** linguist-generated=true
