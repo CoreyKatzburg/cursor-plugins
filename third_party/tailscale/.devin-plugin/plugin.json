@@ -1,0 +1,6 @@
+{
+  "name": "tailscale",
+  "displayName": "Tailscale",
+  "version": "1.0.1",
+  "description": "Let Grok Bot reach MCP servers on your private Tailscale network. On your own tailnet it joins as one tag:grokbot device; on your team's company tailnet, turned on by a team admin, it uses each member's own device."
+}

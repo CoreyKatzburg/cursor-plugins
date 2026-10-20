@@ -1,0 +1,6 @@
+{
+  "name": "salesforce-headless-360",
+  "displayName": "Salesforce (Headless 360, Beta)",
+  "version": "1.0.0",
+  "description": "Manage records, users, and org setup across Salesforce."
+}

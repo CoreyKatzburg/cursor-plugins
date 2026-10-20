@@ -1,0 +1,6 @@
+{
+  "name": "zoho-crm",
+  "displayName": "Zoho CRM",
+  "version": "1.0.0",
+  "description": "Work with leads, contacts, accounts, deals, and other Zoho CRM records."
+}
