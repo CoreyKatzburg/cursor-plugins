@@ -1,0 +1,6 @@
+{
+  "name": "stable",
+  "displayName": "Stable",
+  "version": "1.0.0",
+  "description": "Find mail, read scanned documents, and call Stable API endpoints."
+}

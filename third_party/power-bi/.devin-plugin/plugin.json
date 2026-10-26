@@ -1,0 +1,6 @@
+{
+  "name": "power-bi",
+  "displayName": "Power BI",
+  "version": "1.0.0",
+  "description": "Browse Microsoft Power BI workspaces and render report pages."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "feishu",
+  "displayName": "Feishu",
+  "version": "1.0.0",
+  "description": "Search, create, and update Feishu docs, and read Feishu messages and groups."
+}
