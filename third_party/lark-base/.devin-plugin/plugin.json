@@ -1,0 +1,6 @@
+{
+  "name": "lark-base",
+  "displayName": "Lark Base",
+  "version": "1.0.0",
+  "description": "Read and update tables, fields, views, and records in Lark Base."
+}

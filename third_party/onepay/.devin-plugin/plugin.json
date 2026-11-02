@@ -1,0 +1,6 @@
+{
+  "name": "onepay",
+  "displayName": "OnePay",
+  "version": "1.0.0",
+  "description": "Connect Grok to OnePay to better understand your finances. View balances across Banking, Credit Card, Pay Later, Invest, Crypto and OnePay @ Work. Drill into transactions by date, merchant, or category to understand your spending. Monitor your investment portfolio and crypto holdings alongside your cash. You sign in with OnePay and approve the access Grok requests; xAI never sees or stores your OnePay credentials, and you can disconnect anytime from grok.com."
+}

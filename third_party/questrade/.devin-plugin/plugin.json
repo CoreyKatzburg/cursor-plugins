@@ -1,0 +1,6 @@
+{
+  "name": "questrade",
+  "displayName": "Questrade",
+  "version": "1.0.0",
+  "description": "Read your Questrade portfolio, get live market data, and discuss potential trades."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ringcentral-chat",
+  "displayName": "RingCentral Chat",
+  "version": "1.0.0",
+  "description": "Read team chats and posts, send messages, and manage teams, tasks, and notes."
+}

@@ -1,0 +1,6 @@
+{
+  "name": "servicenow",
+  "displayName": "ServiceNow",
+  "version": "1.0.0",
+  "description": "Call the tools your admin publishes on a ServiceNow instance."
+}
