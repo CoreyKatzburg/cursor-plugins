@@ -1,0 +1,6 @@
+{
+  "name": "item",
+  "displayName": "Item",
+  "version": "1.0.0",
+  "description": "Search, create, and update CRM contacts, companies, and custom objects, run saved views, manage lists, notes, and tasks, and ask the Item assistant about your customer data."
+}

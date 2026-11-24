@@ -1,0 +1,6 @@
+{
+  "name": "tesla",
+  "displayName": "Tesla",
+  "version": "1.0.0",
+  "description": "Read your Tesla cars and energy sites, and send commands you confirm."
+}

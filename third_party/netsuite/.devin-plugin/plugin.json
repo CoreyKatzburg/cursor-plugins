@@ -1,0 +1,6 @@
+{
+  "name": "netsuite",
+  "displayName": "NetSuite",
+  "version": "1.0.0",
+  "description": "Work with records, reports, saved searches, and SuiteQL queries in NetSuite."
+}

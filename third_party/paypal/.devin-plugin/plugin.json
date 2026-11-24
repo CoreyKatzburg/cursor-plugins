@@ -1,0 +1,6 @@
+{
+  "name": "paypal",
+  "displayName": "PayPal",
+  "version": "1.0.0",
+  "description": "Work with invoices, orders, refunds, subscriptions, disputes, and transactions in PayPal."
+}

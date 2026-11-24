@@ -1,0 +1,6 @@
+{
+  "name": "fiscal-ai",
+  "displayName": "Fiscal.ai",
+  "version": "1.0.0",
+  "description": "Pull source-linked financials, filings, ratios, prices, segments, KPIs, ownership, fund letters, and news from Fiscal.ai."
+}

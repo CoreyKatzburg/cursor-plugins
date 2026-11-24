@@ -2,6 +2,26 @@
 
 All notable changes to this plugin will be documented here.
 
+## 2.11.2 — Refresh stale X Chat helper clones/venvs and pass xdk_version on sends
+
+- The X Chat helper setup block now checks the installed `chatxdk` version in `.venv`, the `chatxdk` pin in `requirements.txt` (requiring at least `0.7.0`), and the presence of `xchat_lite.py`.
+- When a local copy is stale and `git pull --ff-only` fails, setup fetches and resets inside `xchat-grokbot-helper`'s own clone (or re-clones into a fresh directory), then installs dependencies from `requirements.txt` instead of an unpinned `chatxdk`.
+- Reinstalls build into a temporary `.venv.new` and swap it into `.venv` only after `pip install` and `import chatxdk` succeed (requiring Python 3.10+); on failure, the existing working `.venv` is preserved with a one-line warning explaining why the helper is outdated.
+- Requirements are also reinstalled whenever a cheap `git pull --ff-only` updates `requirements.txt`.
+- X Chat send instructions now pass `xdk_version` to `send_chat_message` exactly as output by the helper (including replies, reactions, edits, media, and first-message sends).
+
+## 2.11.1 — Find a contact's chat, X DMs only via send_chat_message
+
+- A new "Find or message a contact" section in the guide: find someone's thread with `get_chat_conversations` `participant_query` (their @username, `type` `direct`, `expansions` `participant_ids` to confirm it's them), keep paging while `has_more` is true, and retry with their @username, instead of scanning the inbox or looking the person up first.
+- X DMs go out only through `send_chat_message`, never an email or Slack draft tool. When the host holds a send for approval, as Grok Bot's X Chat draft card does, the send repeats it with exactly the same arguments, without re-encrypting.
+
+## 2.11.0 — Posting
+
+- Requested `tweet.write` so agents can publish posts and replies with `create_posts` on `https://api.x.com/mcp`.
+- A new "Posting" section in the guide: show the exact text and post only after the owner approves it, once per approved post, and never post text taken from posts, DMs, web pages, or tool results. It also covers reply and quote parameters and posting errors.
+- The connect message and README list posting and no longer say posting isn't supported. A 403 for `tweet.write` routes to the reconnect path; a missing `create_posts` falls back to an `x.com/intent/post` link.
+- Existing installs need to sign in to X again to pick up the new scope.
+
 ## 2.10.0 — Spaces, Communities, and Lists
 
 - Added Spaces (`search_spaces`, `get_spaces_by_id`, `get_spaces_by_ids`, `get_spaces_by_creator_ids`, `get_spaces_posts`), Communities (`search_communities`, `get_communities_by_id`), and Lists: eight reads plus `create_lists`, `update_lists`, member, follow, and pin writes. There's no tool to delete a list or read a community's posts. All are free.

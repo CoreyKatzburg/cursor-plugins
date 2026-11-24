@@ -1,0 +1,6 @@
+{
+  "name": "mixpanel",
+  "displayName": "Mixpanel",
+  "version": "1.0.0",
+  "description": "Query events, funnels, flows, and retention in Mixpanel, and manage dashboards, cohorts, experiments, and feature flags."
+}

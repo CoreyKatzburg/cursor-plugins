@@ -1,0 +1,6 @@
+{
+  "name": "google-search-console",
+  "displayName": "Google Search Console",
+  "version": "1.0.0",
+  "description": "Query search performance, inspect URLs, and manage sitemaps."
+}

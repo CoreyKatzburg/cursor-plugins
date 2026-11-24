@@ -1,0 +1,6 @@
+{
+  "name": "databricks-genie",
+  "displayName": "Databricks Genie",
+  "version": "1.1.0",
+  "description": "Ask Databricks Genie questions about your workspace's data in plain language."
+}

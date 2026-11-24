@@ -1,0 +1,6 @@
+{
+  "name": "createos",
+  "displayName": "CreateOS",
+  "version": "1.0.0",
+  "description": "Deploy and manage projects, environments, deployments, domains, logs, cron jobs, security scans, templates, and sandboxes on NodeOps CreateOS."
+}

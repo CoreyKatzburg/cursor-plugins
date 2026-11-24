@@ -1,6 +1,6 @@
 ---
 name: tailscale-setup
-description: Connect Grok Bot to Tailscale on a company tailnet (a team admin enables it at cursor.com; each member authenticates their own device and an admin limits it with custom:grokbot postures) or a personal tailnet (one-click Connect when the member owns or administers the tailnet, otherwise a tag:grokbot device). Several tailnets can be connected at once. Use when the user asks to set up, troubleshoot, change the default tailnet, or disconnect Grok Bot's Tailscale connection.
+description: Connect Grok Bot to Tailscale on a company tailnet (a team admin enables it at cursor.com; each member authenticates their own device and an admin limits it with custom:grokbot postures) or a personal tailnet (one-click Connect when the member owns or administers the tailnet). Several tailnets can be connected at once. Use when the user asks to set up, troubleshoot, change the default tailnet, or disconnect Grok Bot's Tailscale connection.
 ---
 
 # Tailscale setup for Grok Bot
@@ -11,7 +11,7 @@ A member can connect several company tailnets at once, plus one personal tailnet
 
 Grok Bot shows an Allow/Deny card before it removes a device, adds a tailnet, or changes the default. Wait for **Allow**.
 
-Reach tailnet MCP servers through this row. A Tailscale client installed on the bot's computer is wiped when that computer is replaced.
+Reach tailnet MCP servers through this row. Commands on Grok Bot's computer reach the same tailnet hosts too (see **Bot computer**). Don't install a Tailscale client on the bot's computer; it is wiped when that computer is replaced.
 
 Use one path per tailnet.
 
@@ -56,26 +56,11 @@ The member opens that tailnet's slot and clicks **Authenticate**. If the tailnet
 
 A personal sign-in to a tailnet the member's team lists as its company tailnet is refused. Use the company slot for that tailnet.
 
-If the member owns or administers the tailnet and one-click Connect is available, **Authenticate** goes through Tailscale's consent screen and the device works right away. It is untagged and has the owner's access. To grant only specific MCP servers, use the tag path instead.
+**Authenticate** goes through Tailscale's consent screen and the device works right away. The member has to own or administer the tailnet. The device is untagged and has the member's own access.
 
-Otherwise define `tag:grokbot` and grant it only the MCP servers, then sign in with the tag. Merge into the policy file:
+## Bot computer
 
-```hujson
-{
-  "tagOwners": {
-    "tag:grokbot": ["autogroup:admin"],
-  },
-  "grants": [
-    {
-      "src": ["tag:grokbot"],
-      "dst": ["mcp-server.tail1234.ts.net"],
-      "ip": ["tcp:443"],
-    },
-  ],
-}
-```
-
-`tagOwners` has to include the user who will sign in, or `autogroup:admin`. Use the real host names and ports. If the policy still has the default allow-all rule, `tag:grokbot` can reach every device; say so and narrow the grant.
+On a connected tailnet, commands on Grok Bot's computer reach tailnet hosts by full name, on any TCP port, through the same device: the `name.tailnet.ts.net` name, or a name under one of the tailnet's split-DNS domains, including a host behind a subnet router. Nothing to install. A short name, a `100.x` address, a device shared in from another tailnet, and `ping` or other non-TCP traffic don't reach the tailnet from the computer; MCP servers take short names and `100.x` addresses, the computer doesn't. Given a `100.x` address for the computer, check it with `tailscale_check_host` first; when the result's `computer.dialAs` names the device, use that full name instead, keeping the port and path. On a team that limits Grok Bot's network to an allowlist, the computer reaches only the tailnet names on it, and only over TLS such as HTTPS. This works on the member's own turns. Disconnecting the tailnet cuts open connections within seconds.
 
 ## Who can use it
 
@@ -91,6 +76,6 @@ Add a server by its `http://` or `https://` address on the tailnet, or add it wh
 - **Expired link or expired device:** **Authenticate** again. Company devices follow the tailnet's key expiry.
 - **"Your tailnet hasn't allowed Grok Bot's Tailscale app":** a tailnet admin allows the app, then the member connects again.
 - **"Tailscale refused the sign-in key for your company tailnet":** company sign-in needs a plan with custom node attributes (Tailscale Premium or Enterprise). Move the tailnet to one of those plans, then **Authenticate** again.
-- **Can't reach a server:** check the full `.ts.net` name against the default tailnet, the policy grant for that host and port, split DNS and subnet routes (ask the user's Cursor contact to enable those), and the certificate. A public DNS name that points at a Tailscale address isn't followed; use the MagicDNS name or split DNS.
-- **Device shared in from another tailnet:** it can't be reached by name; use its `100.x` address with the receiving tailnet as the default.
+- **Can't reach a server:** check the full `.ts.net` name against the default tailnet, the policy grant for that host and port, and the certificate. Split DNS and subnet routes need nothing turned on; a split-DNS name also needs the policy to let the device reach that domain's DNS servers. A public DNS name that points at a Tailscale address isn't followed; use the MagicDNS name or split DNS.
+- **Device shared in from another tailnet:** it can't be reached by name; an MCP server can use its `100.x` address with the receiving tailnet as the default. Commands on the bot's computer can't reach it.
 - **Server with an internal certificate:** a team admin adds the CA in **Integrations → Tailscale** (ask the user's Cursor contact to enable it).

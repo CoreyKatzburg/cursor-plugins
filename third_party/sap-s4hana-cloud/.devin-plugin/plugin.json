@@ -1,0 +1,6 @@
+{
+  "name": "sap-s4hana-cloud",
+  "displayName": "SAP S/4HANA Cloud",
+  "version": "1.0.0",
+  "description": "Work with business partners, products, sales and purchase orders, supplier invoices, and journal entry items in SAP S/4HANA Cloud."
+}

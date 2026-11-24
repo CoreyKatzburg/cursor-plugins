@@ -1,0 +1,6 @@
+{
+  "name": "sabre-developer-hub",
+  "displayName": "Sabre Developer Hub",
+  "version": "1.0.0",
+  "description": "Search and read Sabre Developer Hub documentation, OpenAPI specs, and Sabre-published agent skills for travel APIs, SDKs, and product collections."
+}

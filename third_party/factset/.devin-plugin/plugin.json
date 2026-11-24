@@ -1,0 +1,6 @@
+{
+  "name": "factset",
+  "displayName": "FactSet",
+  "version": "1.0.0",
+  "description": "Query FactSet fundamentals, prices, estimates, ownership, and company data."
+}

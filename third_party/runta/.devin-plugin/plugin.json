@@ -1,0 +1,6 @@
+{
+  "name": "runta",
+  "displayName": "Runta",
+  "version": "1.0.0",
+  "description": "Create and run persistent agent runtimes, publish ports, and manage egress, checkpoints, and images in Runta."
+}
